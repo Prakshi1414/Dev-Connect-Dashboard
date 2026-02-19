@@ -1,14 +1,15 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setUser, clearUser } from "../ReduxTemp/userSlice";
+import { setUser } from "../ReduxTemp/userSlice";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { addFavorite, removeFavorite } from "../ReduxTemp/favoritesSlice";
+import Layout from "../components/Layout";
 
 const Dashboard = () => {
   const navigate = useNavigate(); // for navigation
-  const { user, logout, isAuthenticated } = useAuth0(); // get user info and auth status from Auth0
+  const { user, isAuthenticated } = useAuth0(); // get user info and auth status from Auth0
   const dispatch = useDispatch(); // get Redux dispatch function
   const userData = useSelector((state) => state.user.userInfo); // get user info from Redux store
 
@@ -23,6 +24,7 @@ const Dashboard = () => {
     }
   }, [isAuthenticated, user, dispatch]); // run effect when auth status or user info changes
 
+  // Fetch GitHub user data based on entered username
   const fetchGithubUser = async () => {
     if (!githubUsername.trim()) return;
 
@@ -53,18 +55,13 @@ const Dashboard = () => {
     }
   };
 
-  // Handle logout by clearing user info from Redux and logging out of Auth0
-  const handleLogout = () => {
-    dispatch(clearUser());
-    logout({ logoutParams: { returnTo: window.location.origin } }); // log out and return to home page
-  };
-
   const [repos, setRepos] = useState([]); // List of repositories
   const [repoLoading, setRepoLoading] = useState(false); // Loading state for repos
   const [repoError, setRepoError] = useState(null); // Error state for repos
   const [currentPage, setCurrentPage] = useState(1); // For pagination
   const [reposPerPage] = useState(5); // Number of repos per page
 
+  // Fetch repositories for the given GitHub username and page
   const fetchGithubRepos = async (username, page = 1) => {
     try {
       setRepoLoading(true);
@@ -76,7 +73,7 @@ const Dashboard = () => {
           params: {
             per_page: reposPerPage,
             page: page,
-            sort: "updated", // latest updated first
+            sort: "updated",
           },
           headers: {
             Authorization: `token ${import.meta.env.VITE_KEY_TOKEN}`,
@@ -92,21 +89,21 @@ const Dashboard = () => {
       setRepoLoading(false);
     }
   };
+  // Handle page change for pagination
   const handlePageChange = (page) => {
     setCurrentPage(page);
     fetchGithubRepos(githubUsername, page);
   };
 
-  const favorites = useSelector((state) => state.favorites.favorites);
+  const favorites = useSelector((state) => state.favorites.favorites);// Get favorites from Redux store
+  // Check if a repository is in the favorites list
   const isFavorite = (repoId) => {
     return favorites.some((repo) => repo.id === repoId);
   };
-  useEffect(() => {
-    console.log("Favorites:", favorites);
-  }, [favorites]);
+ 
 
   return (
-    <div className="p-10">
+    <Layout>
       {/* Auth0 User */}
       <div className="mb-8">
         <h2 className="text-xl font-bold">Authenticated User</h2>
@@ -238,22 +235,15 @@ const Dashboard = () => {
           </div>
         </div>
       )}
-      <div className="flex flex-col h-auto justify-center items-center">
+      <div className="flex flex-col h-auto justify-start items-start">
         <button
           onClick={() => navigate("/favorites")}
           className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
         >
           View Favorites
         </button>
-
-        <button
-          onClick={handleLogout}
-          className="mt-6 px-4 py-2 bg-red-500 text-white rounded"
-        >
-          Logout
-        </button>
       </div>
-    </div>
+    </Layout>
   );
 };
 

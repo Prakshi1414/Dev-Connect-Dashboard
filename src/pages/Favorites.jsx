@@ -1,20 +1,22 @@
 import { useSelector, useDispatch } from "react-redux";
 import { removeFavorite, clearFavorites } from "../ReduxTemp/favoritesSlice";
 import { useNavigate } from "react-router-dom";
+import Layout from "../components/Layout";
 
 const FavoritesPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  
   const favorites = useSelector((state) => state.favorites.favorites);
 
   return (
-    <div className="p-6">
+    <Layout>
       {/* Back Button always visible */}
       <button
         onClick={() => navigate("/dashboard")}
         className="mb-4 px-4 py-2 bg-blue-500 text-white rounded"
       >
-         Back to Dashboard
+        Back to Dashboard
       </button>
 
       <h2 className="text-2xl font-bold mb-4">Favorite Repositories</h2>
@@ -45,7 +47,7 @@ const FavoritesPage = () => {
           </button>
         </>
       )}
-    </div>
+    </Layout>
   );
 };
 

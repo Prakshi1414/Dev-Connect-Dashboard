@@ -1,8 +1,16 @@
-import { defineConfig } from 'vite'
-import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from "vite";
+import tailwindcss from "@tailwindcss/vite";
 
-export default defineConfig({
-  plugins: [
-    tailwindcss(),
-  ],
-})
+
+defineConfig.exports = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      fontFamily: {
+        sonsie: ["Sonsie One", "cursive"],
+      },
+    },
+  },
+  plugins: [tailwindcss()],
+};
+
