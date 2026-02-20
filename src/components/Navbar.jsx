@@ -1,12 +1,13 @@
 import { useSelector } from "react-redux";
 import { useState, useEffect } from "react";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
+import { TfiMenuAlt } from "react-icons/tfi";
 
-const Navbar = () => {
+const Navbar = ({ isOpen, setIsOpen }) => {
   const user = useSelector((state) => state.user.userInfo);
   const [darkMode, setDarkMode] = useState(false);
 
-// Apply dark mode class to the document root when darkMode state changes
+  // Apply dark mode class to the document root when darkMode state changes
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add("dark");
@@ -24,7 +25,17 @@ const Navbar = () => {
   }, [user]);
 
   return (
-    <div className="bg-gray-200 dark:bg-gray-800 shadow px-4 py-2 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-5">
+    <div className="bg-gray-200 dark:bg-gray-800 shadow px-4 py-2 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-5 relative z-10">
+      {/* Menu Button (mobile only + hide when sidebar open) */}
+      {!isOpen && (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="md:hidden text-2xl mr-[15px] "
+        >
+          <TfiMenuAlt size={23} />
+        </button>
+      )}
+
       <h1 className="text-[24px] whitespace-nowrap text-gray-500 font-semibold">
         GitHub Dashboard
       </h1>

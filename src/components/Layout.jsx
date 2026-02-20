@@ -1,22 +1,27 @@
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
+import { useState } from "react";
 
 const Layout = ({ children }) => {
+  const [isOpen, setIsOpen] = useState(false);
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-700  dark:text-gray-100 relative">
       {/* Sidebar */}
-      <aside className="sticky max-h-screen">
-        <Sidebar />
-      </aside>
+      <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
 
-      {/* Main Content Area */}
-      <div className="flex flex-col flex-1">
-        <aside className="sticky">
-          <Navbar />
-        </aside>
+      {/* Overlay (only mobile) */}
+      {isOpen && (
+        <div
+          onClick={() => setIsOpen(false)}
+          className="fixed inset-0 bg-black/40 z-40 md:hidden"
+        />
+      )}
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-auto p-6">{children}</main>
+      {/* Main Content Wrapper */}
+      <div className="md:ml-64 flex flex-col min-h-screen">
+        <Navbar isOpen={isOpen} setIsOpen={setIsOpen} />
+
+        <main className="flex-1 p-6">{children}</main>
       </div>
     </div>
   );

@@ -4,8 +4,9 @@ import { clearUser } from "../ReduxTemp/userSlice";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useDispatch } from "react-redux";
 import { FaStar } from "react-icons/fa6";
+import { RxCross2 } from "react-icons/rx";
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, setIsOpen }) => {
   const { logout } = useAuth0(); // get user info and auth status from Auth0
   const dispatch = useDispatch(); // get Redux dispatch function
 
@@ -17,13 +18,29 @@ const Sidebar = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-54 min-h-screen bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-gray-200 shadow-lg p-5 pt-[25px] hidden md:block">
-      <h2
-        className="font-sonsie text-[20px] leading-[100%] bg-[linear-gradient(90deg,#0d2e7c_0%,#67aefc_50%,#94979f_100%)] mb-6 bg-clip-text text-transparent"
+    <div
+      className={`
+    fixed top-0 left-0
+    h-screen w-64
+    bg-gray-200 dark:bg-gray-800
+    shadow-lg p-5
+    transform
+    ${isOpen ? "translate-x-0" : "-translate-x-full"}
+    transition-transform duration-300
+    z-50
+    md:translate-x-0
+  `}
+    >
+      {/* Close button (mobile only) */}
+      <button
+        onClick={() => setIsOpen(false)}
+        className="md:hidden absolute top-1 right-2 text-xl"
       >
+        <RxCross2 size={20} />
+      </button>
+      <h2 className="font-sonsie text-[20px] leading-[100%] bg-[linear-gradient(90deg,#0d2e7c_0%,#67aefc_50%,#94979f_100%)] mb-6 bg-clip-text text-transparent">
         DevConnect
       </h2>
-
       <ul className="space-y-6 pt-[50px] border-t border-gray-700">
         <li>
           <button
@@ -31,7 +48,7 @@ const Sidebar = () => {
             className="w-full flex text-left hover:text-blue-300 cursor-pointer"
           >
             <MdSpaceDashboard size={24} />
-            <span className="ml-2 text-[18px]">Dashboard</span>
+            <span className="ml-2 text-[18px] ">Dashboard</span>
           </button>
         </li>
 
