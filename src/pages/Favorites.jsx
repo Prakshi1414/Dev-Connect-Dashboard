@@ -50,7 +50,7 @@ const FavoritesPage = () => {
           <div className="flex flex-col justify-start items-start gap-4">
             <button
               onClick={() => dispatch(clearFavorites())}
-              className="mt-4 w-full md:w-auto  px-4 py-2 bg-gray-500 text-white rounded cuesor-pointer hover:bg-gray-600 transition"
+              className="mt-4 w-full md:w-auto cursor-pointer px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition"
             >
               Clear All
             </button>

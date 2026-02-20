@@ -8,6 +8,7 @@ import Layout from "../components/Layout";
 import { RxCross2 } from "react-icons/rx";
 
 const Dashboard = () => {
+  // Get user info and authentication status from Auth0
   const { user, isAuthenticated } = useAuth0(); // get user info and auth status from Auth0
   const dispatch = useDispatch(); // get Redux dispatch function
 
@@ -60,7 +61,7 @@ const Dashboard = () => {
       setLoading(false);
     }
   };
-
+  //for repositories
   const [repos, setRepos] = useState([]); // List of repositories
   const [repoLoading, setRepoLoading] = useState(false); // Loading state for repos
   const [repoError, setRepoError] = useState(null); // Error state for repos
@@ -106,7 +107,36 @@ const Dashboard = () => {
   const isFavorite = (repoId) => {
     return favorites.some((repo) => repo.id === repoId);
   };
+  // State to track if user was not found
   const [userNotFound, setUserNotFound] = useState(false);
+
+  //for search feature
+  const [suggestions, setSuggestions] = useState([]); // For live username suggestions
+  const [showSuggestions, setShowSuggestions] = useState(false); // Control dropdown visibility
+
+  // Fetch top 10 GitHub users matching the query for suggestions
+  const fetchSuggestions = async (query) => {
+    const trimmedQuery = query.trim(); // remove spaces
+    if (!trimmedQuery) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    try {
+      const res = await axios.get("https://api.github.com/search/users", {
+        params: { q: trimmedQuery, per_page: 10 },
+        headers: { Authorization: `token ${import.meta.env.VITE_KEY_TOKEN}` },
+      });
+
+      setSuggestions(res.data.items || []);
+      setShowSuggestions(true);
+    } catch (error) {
+      console.error("Error fetching suggestions:", error);
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  };
 
   return (
     <Layout>
@@ -122,19 +152,60 @@ const Dashboard = () => {
             <input
               type="text"
               value={githubUsername}
-              onChange={(e) => setGithubUsername(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                setGithubUsername(value); // update input
+                fetchSuggestions(value); // fetch top 10 suggestions
+              }}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
+                  setShowSuggestions(false); // hide suggestions when searchinga
                   fetchGithubUser();
                 }
               }}
               placeholder="Enter GitHub username"
               className="border border-gray-300 px-3 py-2 rounded w-full"
             />
-            {/* Clear (×) button inside input */}
+            {/* Show dropdown only if there are suggestions and user is typing */}
+            {showSuggestions && suggestions.length > 0 && (
+              <ul className="absolute top-full left-0 w-full bg-white hide-scrollbar dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded mt-1 max-h-60 overflow-y-auto z-50">
+                {suggestions.map((user) => (
+                  <li
+                    key={user.id}
+                    onClick={() => {
+                      setGithubUsername(user.login); // set input to clicked username
+                      fetchGithubUser(); // fetch user data
+                      setShowSuggestions(false); // hide dropdown
+                    }}
+                    className="px-3 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                  >
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={user.avatar_url}
+                        alt={user.login}
+                        className="w-6 h-6 rounded-full"
+                      />
+                      <span className="text-gray-900 dark:text-gray-200">
+                        {user.login}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {/* Clear button inside input , it clear whole screen */}
             {githubUsername && (
               <button
-                onClick={() => setGithubUsername("")}
+                onClick={() => {
+                  setGithubUsername(""); // clear input
+                  setGithubData(null); // remove GitHub user data
+                  setRepos([]); // clear repos
+                  setUserNotFound(false); // reset not found
+                  setCurrentPage(1); // reset pagination
+                  setSuggestions([]); // clear suggestions
+                  setShowSuggestions(false); // hide suggestions
+                }}
                 className="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-gray-600"
               >
                 <RxCross2 size={20} />

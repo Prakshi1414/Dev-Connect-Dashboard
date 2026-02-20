@@ -6,7 +6,7 @@ const Navbar = () => {
   const user = useSelector((state) => state.user.userInfo);
   const [darkMode, setDarkMode] = useState(false);
 
-  // Apply dark mode class to <html> or <body>
+// Apply dark mode class to the document root when darkMode state changes
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add("dark");
