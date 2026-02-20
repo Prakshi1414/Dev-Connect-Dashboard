@@ -13,15 +13,28 @@ const Login = () => {
   }, [isAuthenticated, navigate]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-800 px-4">
-      <div className="bg-white p-6 sm:p-6 w-full max-w-sm rounded shadow text-center">
-        <h1 className="text-xl sm:text-2xl font-bold mb-4 text-black">
-          DevConnect
-        </h1>
+    <div
+      className="min-h-screen flex items-center justify-center  bg-center relative"
+      style={{ backgroundImage: "url('/assets/bg3.png')" }}
+    >
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-black/50"></div>
+
+      {/* Glass Card */}
+      <div className="relative min-h-[460px] flex flex-col z-10 w-full max-w-[500px] mx-4 p-8 justify-center items-center rounded-2xl backdrop-blur-lg bg-white/10 border border-white/20 shadow-2xl text-center">
+        <div className="gap-[10px]">
+          <h1 className="text-3xl font-bold text-white  tracking-wide">
+            DevConnect
+          </h1>
+
+          <p className="text-gray-200 mb-6">
+            Connect. Explore. Build Together.
+          </p>
+        </div>
 
         <button
           onClick={() => loginWithRedirect()}
-          className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          className="w-full max-w-[300px] py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:opacity-90 transition text-white font-semibold rounded-lg shadow-lg"
         >
           Login with Auth0
         </button>
