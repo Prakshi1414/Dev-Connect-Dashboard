@@ -17,8 +17,10 @@ const Sidebar = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-54 max-h-screen bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-gray-200 hover:bg-slate-200 shadow-lg p-5 pt-[25px] hidden md:block">
-      <h2 className="font-sonsie text-[20px] leading-[100%] bg-[linear-gradient(90deg,#0d2e7c_0%,#f1f6f0_50%,#94979f_100%)] mb-6 bg-clip-text text-transparent">
+    <div className="w-54 min-h-screen bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-gray-200 shadow-lg p-5 pt-[25px] hidden md:block">
+      <h2
+        className="font-sonsie text-[20px] leading-[100%] bg-[linear-gradient(90deg,#0d2e7c_0%,#67aefc_50%,#94979f_100%)] mb-6 bg-clip-text text-transparent"
+      >
         DevConnect
       </h2>
 

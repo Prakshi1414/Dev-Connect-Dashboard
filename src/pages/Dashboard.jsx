@@ -3,15 +3,13 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../ReduxTemp/userSlice";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { addFavorite, removeFavorite } from "../ReduxTemp/favoritesSlice";
 import Layout from "../components/Layout";
+import { RxCross2 } from "react-icons/rx";
 
 const Dashboard = () => {
-  const navigate = useNavigate(); // for navigation
   const { user, isAuthenticated } = useAuth0(); // get user info and auth status from Auth0
   const dispatch = useDispatch(); // get Redux dispatch function
-  const userData = useSelector((state) => state.user.userInfo); // get user info from Redux store
 
   const [githubData, setGithubData] = useState(null); // state to hold GitHub user data
   const [githubUsername, setGithubUsername] = useState("");
@@ -30,6 +28,7 @@ const Dashboard = () => {
 
     try {
       setLoading(true);
+      setUserNotFound(false);
       setGithubData(null);
       setRepos([]); // clear previous repos
 
@@ -41,13 +40,20 @@ const Dashboard = () => {
           },
         },
       );
-
+      setUserNotFound(true);
       setGithubData(res.data);
       setCurrentPage(1);
       fetchGithubRepos(githubUsername, 1); // fetch first page of repos
+      setUserNotFound(false);
 
       setLoading(false);
     } catch (error) {
+      if (error.response && error.response.status === 404) {
+        setUserNotFound(true);
+      } else {
+        setUserNotFound(false);
+      }
+
       console.error("GitHub API Error:", error);
       setGithubData(null);
       setRepos([]);
@@ -95,50 +101,50 @@ const Dashboard = () => {
     fetchGithubRepos(githubUsername, page);
   };
 
-  const favorites = useSelector((state) => state.favorites.favorites);// Get favorites from Redux store
+  const favorites = useSelector((state) => state.favorites.favorites); // Get favorites from Redux store
   // Check if a repository is in the favorites list
   const isFavorite = (repoId) => {
     return favorites.some((repo) => repo.id === repoId);
   };
- 
+  const [userNotFound, setUserNotFound] = useState(false);
 
   return (
     <Layout>
-      {/* Auth0 User */}
       <div className="mb-8">
-        <h2 className="text-xl font-bold">Authenticated User</h2>
-        <div className="flex flex-row items-center gap-4 mt-[10px]">
-          <img
-            src={userData?.picture}
-            alt="auth user"
-            className="w-20 h-20 rounded-full border"
-          />
-
-          <div className="flex flex-col font-medium">
-            <p>Name: {userData?.name}</p>
-            <p>Email: {userData?.email}</p>
-          </div>
-        </div>
+        <h2 className="text-lg sm:text-xl md:text-2xl font-bold dark:text-gray-300 ">
+          Hello, Code Master!
+        </h2>
       </div>
-      <div className="bg-white shadow p-6 rounded mb-6">
+      <div className="bg-white shadow p-6 rounded mb-6 dark:bg-gray-800">
         <h2 className="text-lg font-bold mb-2">Enter GitHub Username</h2>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={githubUsername}
-            onChange={(e) => setGithubUsername(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                fetchGithubUser();
-              }
-            }}
-            placeholder="Enter GitHub username"
-            className="border px-3 py-2 rounded w-full"
-          />
+        <div className="flex flex-col sm:flex-row gap-2">
+          <div className="relative w-full">
+            <input
+              type="text"
+              value={githubUsername}
+              onChange={(e) => setGithubUsername(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  fetchGithubUser();
+                }
+              }}
+              placeholder="Enter GitHub username"
+              className="border border-gray-300 px-3 py-2 rounded w-full"
+            />
+            {/* Clear (×) button inside input */}
+            {githubUsername && (
+              <button
+                onClick={() => setGithubUsername("")}
+                className="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-gray-600"
+              >
+                <RxCross2 size={20} />
+              </button>
+            )}
+          </div>
 
           <button
             onClick={fetchGithubUser}
-            className="px-4 py-2 bg-blue-600 text-white rounded"
+            className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer transition"
           >
             Search
           </button>
@@ -149,22 +155,65 @@ const Dashboard = () => {
         <p className="mb-4 text-blue-600 font-medium">Loading GitHub data...</p>
       )}
 
+      {!loading && userNotFound && (
+        <p className="mb-4 text-red-500  font-medium">
+          No user found with this username.
+        </p>
+      )}
+
+      {/* Example for repos rendering */}
+      {!loading && !userNotFound && repos.length > 0 && (
+        <div className="mt-6">{/* Your repos list code here */}</div>
+      )}
+
       {/* GitHub User Data */}
       {githubData && (
-        <div className="bg-white shadow p-6 rounded">
-          <div className="flex items-center gap-4">
+        <div className="space-y-3 ">
+          {/* Row 1: Centered profile */}
+          <div className="flex flex-col items-center bg-white dark:bg-gray-800 shadow rounded p-2 ">
             <img
               src={githubData.avatar_url}
-              alt="github avatar"
-              className="w-20 h-20 rounded-full"
+              alt="GitHub Avatar"
+              className="w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full mb-3"
             />
-            <div>
-              <h2 className="text-2xl font-bold">
-                {githubData.name || githubData.login}
-              </h2>
-              <p>Total Repositories: {githubData.public_repos}</p>
-              <p>Followers: {githubData.followers}</p>
-              <p>Following: {githubData.following}</p>
+            <h2 className=" text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
+              {githubData.name || githubData.login}
+            </h2>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              @{githubData.login}
+            </p>
+          </div>
+
+          {/* Row 2: 3 Boxes */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {/* Repositories Box */}
+            <div className="bg-white dark:bg-gray-800 shadow rounded p-3 flex flex-col items-center dark:bg-gray-600">
+              <h3 className="text-md sm:text-lg font-semibold text-gray-700 dark:text-gray-200">
+                Total Repositories
+              </h3>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">
+                {githubData.public_repos}
+              </p>
+            </div>
+
+            {/* Followers Box */}
+            <div className="bg-white dark:bg-gray-800 shadow rounded p-3 flex flex-col items-center dark:bg-gray-600">
+              <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">
+                Followers
+              </h3>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">
+                {githubData.followers}
+              </p>
+            </div>
+
+            {/* Following Box */}
+            <div className="bg-white dark:bg-gray-800 shadow rounded p-3 flex flex-col items-center dark:bg-gray-600">
+              <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">
+                Following
+              </h3>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">
+                {githubData.following}
+              </p>
             </div>
           </div>
         </div>
@@ -175,51 +224,59 @@ const Dashboard = () => {
       {repoError && <p className="text-red-500">{repoError}</p>}
 
       {repos.length > 0 && (
-        <div className="mt-6">
-          <h3 className="text-lg font-bold mb-2">Repositories</h3>
-          <ul className="space-y-3">
+        <div className="mt-6 w-full  mx-auto px-4">
+          <h3 className="text-2xl font-bold text-center justify-center items-center mb-4">
+            Repositories
+          </h3>
+          <ul className="space-y-4">
             {repos.map((repo) => {
               const fav = isFavorite(repo.id);
               return (
                 <li
                   key={repo.id}
-                  className="p-3 border rounded flex justify-between items-center"
+                  className="p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-3 bg-white dark:bg-gray-800 shadow-sm"
                 >
-                  <div>
-                    <h4 className="font-semibold text-blue-600">{repo.name}</h4>
-                    <p>{repo.description || "No description"}</p>
-                    <p>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-blue-600 text-lg">
+                      {repo.name}
+                    </h4>
+                    <p className="text-gray-700 mt-1 dark:text-gray-100">
+                      {repo.description || "No description"}
+                    </p>
+                    <p className="text-gray-500 mt-1">
                       <span className="font-medium">Language:</span>{" "}
                       {repo.language || "N/A"} | ⭐ {repo.stargazers_count}
                     </p>
                   </div>
 
-                  {fav ? (
-                    <button
-                      onClick={() => dispatch(removeFavorite(repo.id))}
-                      className="px-2 py-1 bg-red-400 rounded"
-                    >
-                      Remove Favorite
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => dispatch(addFavorite(repo))}
-                      className="px-2 py-1 bg-yellow-400 rounded"
-                    >
-                      Add Favorite
-                    </button>
-                  )}
+                  <div className="mt-2 md:mt-0">
+                    {fav ? (
+                      <button
+                        onClick={() => dispatch(removeFavorite(repo.id))}
+                        className="px-3 py-1 cursor-pointer bg-red-500 w-full md:w-auto hover:bg-red-600 text-white rounded-md transition"
+                      >
+                        Remove Favorite
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => dispatch(addFavorite(repo))}
+                        className="px-3 py-1 cursor-pointer bg-yellow-400 w-full md:w-auto hover:bg-yellow-500 text-white rounded-md transition"
+                      >
+                        Add Favorite
+                      </button>
+                    )}
+                  </div>
                 </li>
               );
             })}
           </ul>
 
           {/* Pagination Buttons */}
-          <div className="flex gap-2 mt-4">
+          <div className="flex flex-wrap gap-2 mt-6 justify-center">
             {currentPage > 1 && (
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
-                className="px-3 py-1 bg-gray-200 rounded"
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md transition cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-500"
               >
                 Prev
               </button>
@@ -227,7 +284,7 @@ const Dashboard = () => {
             {repos.length === reposPerPage && (
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
-                className="px-3 py-1 bg-gray-200 rounded"
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md transition cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-500"
               >
                 Next
               </button>
@@ -235,14 +292,6 @@ const Dashboard = () => {
           </div>
         </div>
       )}
-      <div className="flex flex-col h-auto justify-start items-start">
-        <button
-          onClick={() => navigate("/favorites")}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-        >
-          View Favorites
-        </button>
-      </div>
     </Layout>
   );
 };
