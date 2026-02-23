@@ -6,6 +6,7 @@ import axios from "axios";
 import { addFavorite, removeFavorite } from "../ReduxTemp/favoritesSlice";
 import Layout from "../components/Layout";
 import { RxCross2 } from "react-icons/rx";
+import toast from "react-hot-toast";
 
 const Dashboard = () => {
   // Get user info and authentication status from Auth0
@@ -19,9 +20,20 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (isAuthenticated && user) {
+      // show welcome toast with user's name
       dispatch(setUser(user)); // store user info in Redux
     }
   }, [isAuthenticated, user, dispatch]); // run effect when auth status or user info changes
+
+  useEffect(() => {
+    const justLoggedIn = sessionStorage.getItem("justLoggedIn");
+
+    if (justLoggedIn && user) {
+      toast.success(`Login Successful 
+        Welcome ${user.name} `);
+      sessionStorage.removeItem("justLoggedIn");
+    }
+  }, [user]);
 
   // Fetch GitHub user data based on entered username
   const fetchGithubUser = async () => {
@@ -323,14 +335,20 @@ const Dashboard = () => {
                   <div className="mt-2 md:mt-0">
                     {fav ? (
                       <button
-                        onClick={() => dispatch(removeFavorite(repo.id))}
+                        onClick={() => {
+                          dispatch(removeFavorite(repo.id));
+                          toast.error("Removed from Favorites ");
+                        }}
                         className="px-3 py-1 cursor-pointer bg-red-500 w-full md:w-auto hover:bg-red-600 text-white rounded-md transition"
                       >
                         Remove Favorite
                       </button>
                     ) : (
                       <button
-                        onClick={() => dispatch(addFavorite(repo))}
+                        onClick={() => {
+                          dispatch(addFavorite(repo));
+                          toast.success("Added to Favorites ");
+                        }}
                         className="px-3 py-1 cursor-pointer bg-yellow-400 w-full md:w-auto hover:bg-yellow-500 text-white rounded-md transition"
                       >
                         Add Favorite

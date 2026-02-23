@@ -1,6 +1,7 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const Login = () => {
   const { loginWithRedirect, isAuthenticated } = useAuth0();
@@ -8,15 +9,13 @@ const Login = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
+      sessionStorage.setItem("justLoggedIn", "true");
       navigate("/dashboard");
     }
   }, [isAuthenticated, navigate]);
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center bg-[url('/assets/bg3.png')]   bg-center relative"
-    
-    >
+    <div className="min-h-screen flex items-center justify-center bg-[url('/assets/bg3.png')]   bg-center relative">
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/50"></div>
 
@@ -33,7 +32,10 @@ const Login = () => {
         </div>
 
         <button
-          onClick={() => loginWithRedirect()}
+          onClick={() => {
+            toast("Redirecting to Login...");
+            loginWithRedirect();
+          }}
           className="w-full max-w-[300px] py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:opacity-90 transition text-white font-semibold rounded-lg shadow-lg"
         >
           Login with Auth0

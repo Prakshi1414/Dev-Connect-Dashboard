@@ -2,6 +2,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { removeFavorite, clearFavorites } from "../ReduxTemp/favoritesSlice";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
+import toast from "react-hot-toast";
 
 const FavoritesPage = () => {
   const dispatch = useDispatch();
@@ -39,7 +40,10 @@ const FavoritesPage = () => {
               </div>
 
               <button
-                onClick={() => dispatch(removeFavorite(repo.id))}
+                onClick={() => {
+                  dispatch(removeFavorite(repo.id));
+                  toast.error("Removed from Favorites ");
+                }}
                 className="mt-3 md:mt-0 w-full md:w-auto px-4 py-2 cursor-pointer bg-red-500 hover:bg-red-600 text-white rounded-md transition"
               >
                 Remove
@@ -49,7 +53,10 @@ const FavoritesPage = () => {
 
           <div className="flex flex-col justify-start items-start gap-4">
             <button
-              onClick={() => dispatch(clearFavorites())}
+              onClick={() => {
+                dispatch(clearFavorites());
+                toast.success("All favorites cleared ");
+              }}
               className="mt-4 w-full md:w-auto cursor-pointer px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition"
             >
               Clear All

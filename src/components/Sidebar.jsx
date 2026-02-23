@@ -5,16 +5,20 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { useDispatch } from "react-redux";
 import { FaStar } from "react-icons/fa6";
 import { RxCross2 } from "react-icons/rx";
+import toast from "react-hot-toast";
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const { logout } = useAuth0(); // get user info and auth status from Auth0
   const dispatch = useDispatch(); // get Redux dispatch function
 
   const handleLogout = () => {
-    dispatch(clearUser());
-    logout({ logoutParams: { returnTo: window.location.origin } }); // log out and return to home page
-  };
+    toast.success("Logging out... ");
 
+    setTimeout(() => {
+      dispatch(clearUser());
+      logout({ logoutParams: { returnTo: window.location.origin } });
+    }, 500);
+  };
   const navigate = useNavigate();
 
   return (
